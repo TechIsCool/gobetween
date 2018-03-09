@@ -66,12 +66,12 @@ deps: clean-deps
 	github.com/gin-gonic/gin \
 	github.com/hashicorp/consul/api \
 	github.com/spf13/cobra \
-	github.com/prometheus/client_golang \
 	github.com/beorn7/perks/quantile \
-	github.com/prometheus/client_model \
-	github.com/prometheus/common \
+	github.com/prometheus/client_golang/prometheus \
+	github.com/prometheus/client_model/go \
+	github.com/prometheus/common/model \
+	github.com/matttproud/golang_protobuf_extensions/pbutil \
 	github.com/prometheus/procfs \
-	github.com/matttproud/golang_protobuf_extensions \
 	github.com/Microsoft/go-winio \
 	golang.org/x/sys/windows \
 	github.com/inconshreveable/mousetrap \
