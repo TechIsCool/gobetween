@@ -34,7 +34,7 @@ cors = false    # cross-origin resource sharing
 # Metrics server configuration
 #
 [metrics]
-enabled = false  # true | false
+enabled = true  # true | false
 bind = ":9284"  # "host:port"
 
 #
