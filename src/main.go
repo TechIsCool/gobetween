@@ -5,18 +5,20 @@
 package main
 
 import (
+	"log"
+	"math/rand"
+	"os"
+	"runtime"
+	"time"
+
 	"./api"
 	"./cmd"
 	"./config"
 	"./info"
 	"./logging"
 	"./manager"
+	"./metrics"
 	"./utils/codec"
-	"log"
-	"math/rand"
-	"os"
-	"runtime"
-	"time"
 )
 
 /**
@@ -73,6 +75,9 @@ func main() {
 
 		// Start API
 		go api.Start((*cfg).Api)
+
+		/* setup metrics */
+		go metrics.Start((*cfg).Metrics)
 
 		// Start manager
 		go manager.Initialize(*cfg)

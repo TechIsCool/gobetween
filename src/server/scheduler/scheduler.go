@@ -7,12 +7,14 @@
 package scheduler
 
 import (
+	"fmt"
 	"time"
 
 	"../../core"
 	"../../discovery"
 	"../../healthcheck"
 	"../../logging"
+	"../../metrics"
 	"../../stats"
 	"../../stats/counters"
 )
@@ -203,6 +205,8 @@ func (this *Scheduler) HandleBackendStatsChange(target core.Target, bs *counters
 	backend.Stats.TxBytes = bs.TxTotal
 	backend.Stats.RxSecond = bs.RxSecond
 	backend.Stats.TxSecond = bs.TxSecond
+
+	metrics.ReportHandleBackendStatsChange(fmt.Sprintf("%s", this.StatsHandler.Name), target, this.backends)
 }
 
 /**
@@ -217,6 +221,8 @@ func (this *Scheduler) HandleBackendLiveChange(target core.Target, live bool) {
 	}
 
 	backend.Stats.Live = live
+
+	metrics.ReportHandleBackendLiveChange(fmt.Sprintf("%s", this.StatsHandler.Name), target, live)
 }
 
 /**
@@ -241,6 +247,8 @@ func (this *Scheduler) HandleBackendsUpdate(backends []core.Backend) {
 			updatedList[i] = &b
 		}
 	}
+
+	//TODO: Remove old labeled metrics when this changes
 
 	this.backends = updated
 	this.backendsList = updatedList
@@ -308,6 +316,7 @@ func (this *Scheduler) HandleOp(op Op) {
 		log.Warn("Don't know how to handle op ", op.op)
 	}
 
+	metrics.ReportHandleOp(fmt.Sprintf("%s", this.StatsHandler.Name), op.target, this.backends)
 }
 
 /**
