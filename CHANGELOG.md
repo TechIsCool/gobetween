@@ -1,6 +1,15 @@
 # Changelog
 
+## [0.6.0] - Unreleased
+
+### New Features
+ - Prometheus Metrics Endpoint
+
+### Fixed
+ - Static Builds now cross compile from MacOS to Linux without cgo
+
 ## [0.5.0] - 2017-10-13
+
 This release brings several new features and various fixes and improvements.
 
 ### New Features
