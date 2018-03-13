@@ -29,7 +29,7 @@ build:
 
 build-static:
 	@echo Building...
-	CGO_ENABLED=1 go build -v -o ./bin/$(NAME) -a -tags netgo -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
+	CGO_ENABLED=1 go build -v -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
 	@echo Done.
 
 run: build
@@ -93,14 +93,14 @@ dist:
 
 	@#             os    arch  cgo ext
 	@for arch in "linux   386  1      "  "linux   amd64 1      "  \
-		     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-		     "darwin  386  0      "  "darwin  amd64 0      "; \
+				 "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+				 "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\
 	  distpath="./dist/${VERSION}/$$1_$$2" ;\
 	  mkdir -p $$distpath ; \
-	  CGO_ENABLED=$$3 GOOS=$$1 GOARCH=$$2 go build -v -o $$distpath/$(NAME)$$4 -a -tags netgo -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go ;\
+	  CGO_ENABLED=$$3 GOOS=$$1 GOARCH=$$2 go build -v -o $$distpath/$(NAME)$$4 -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go ;\
 	  cp "README.md" "LICENSE" "CHANGELOG.md" "AUTHORS" $$distpath ;\
 	  mkdir -p $$distpath/config && cp "./config/gobetween.toml" $$distpath/config ;\
 	  if [ "$$1" = "linux" ]; then \
