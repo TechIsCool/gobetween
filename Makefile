@@ -29,7 +29,7 @@ build:
 
 build-static:
 	@echo Building...
-	CGO_ENABLED=1 go build -v -o ./bin/$(NAME) -tags netgo -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
+	CGO_ENABLED=1 go build -v -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
 	@echo Done.
 
 run: build
@@ -66,12 +66,12 @@ deps: clean-deps
 	github.com/gin-gonic/gin \
 	github.com/hashicorp/consul/api \
 	github.com/spf13/cobra \
-	github.com/prometheus/client_golang \
 	github.com/beorn7/perks/quantile \
-	github.com/prometheus/client_model \
-	github.com/prometheus/common \
+	github.com/prometheus/client_golang/prometheus \
+	github.com/prometheus/client_model/go \
+	github.com/prometheus/common/model \
+	github.com/matttproud/golang_protobuf_extensions/pbutil \
 	github.com/prometheus/procfs \
-	github.com/matttproud/golang_protobuf_extensions \
 	github.com/Microsoft/go-winio \
 	golang.org/x/sys/windows \
 	github.com/inconshreveable/mousetrap \
@@ -93,8 +93,8 @@ dist:
 
 	@#             os    arch  cgo ext
 	@for arch in "linux   386  1      "  "linux   amd64 1      "  \
-		     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-		     "darwin  386  0      "  "darwin  amd64 0      "; \
+				 "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+				 "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\
