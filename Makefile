@@ -80,15 +80,14 @@ deps: clean-deps
 clean-dist:
 	rm -rf ./dist/${VERSION}
 
-
 dist:
 	@# For linux 386 when building on linux amd64 you'll need 'libc6-dev-i386' package
 	@echo Building dist
 
 	@#             os    arch  cgo ext
 	@for arch in "linux   386  0      "  "linux   amd64 1      "  \
-				 "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-				 "darwin  386  0      "  "darwin  amd64 0      "; \
+		     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+		     "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\
