@@ -3,16 +3,29 @@ package metrics
 import (
 	"fmt"
 	"net/http"
+	"runtime"
 
 	"../config"
 	"../core"
+	"../info"
 	"../logging"
 	"../stats/counters"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+const (
+	namespace = "gobetween"
+)
+
 var (
+	metricsDisabled bool = false
+
+	buildInfo *prometheus.GaugeVec
+	version   string
+	revision  string
+	branch    string
+
 	serverCount             *prometheus.GaugeVec
 	serverActiveConnections *prometheus.GaugeVec
 	serverRxTotal           *prometheus.GaugeVec
@@ -31,99 +44,109 @@ var (
 )
 
 func defineMetrics() {
+
+	buildInfo = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: namespace,
+		Name:      "build_info",
+		Help: fmt.Sprintf(
+			"A metric with a constant '1' value labeled by version, revision, branch, and goversion from which %s was built.",
+			namespace,
+		),
+	}, []string{"version", "revision", "branch", "goversion"})
+
 	serverCount = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "server",
 		Name:      "count",
 		Help:      "Server Count.",
 	}, []string{"server"})
 
 	serverActiveConnections = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "server",
 		Name:      "active_connections",
 		Help:      "Server Actice Connections.",
 	}, []string{"server"})
 
 	serverRxTotal = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "server",
 		Name:      "rx_total",
 		Help:      "Server Rx Total.",
 	}, []string{"server"})
 
 	serverTxTotal = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "server",
 		Name:      "tx_total",
 		Help:      "Server Tx Total.",
 	}, []string{"server"})
 
 	serverRxSecond = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "server",
 		Name:      "rx_second",
 		Help:      "Server Rx per Second.",
 	}, []string{"server"})
 
 	serverTxSecond = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "server",
 		Name:      "tx_second",
 		Help:      "Server Tx per Second.",
 	}, []string{"server"})
 
 	backendActiveConnections = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "active_connections",
 		Help:      "Backend Actice Connections.",
 	}, []string{"server", "host", "port"})
 
 	backendRefusedConnections = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "refused_connections",
 		Help:      "Backend Refused Connections.",
 	}, []string{"server", "host", "port"})
 
 	backendTotalConnections = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "total_connections",
 		Help:      "Backend Total Connections.",
 	}, []string{"server", "host", "port"})
 
 	backendRxBytes = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "rx_bytes",
 		Help:      "Backend Rx Bytes.",
 	}, []string{"server", "host", "port"})
 
 	backendTxBytes = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "tx_bytes",
 		Help:      "Backend Tx Bytes.",
 	}, []string{"server", "host", "port"})
 
 	backendRxSecond = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "rx_second",
 		Help:      "Backend Rx per Second.",
 	}, []string{"server", "host", "port"})
 
 	backendTxSecond = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "tx_second",
 		Help:      "Backend Tx per Second.",
 	}, []string{"server", "host", "port"})
 
 	backendLive = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "gobetween",
+		Namespace: namespace,
 		Subsystem: "backend",
 		Name:      "live",
 		Help:      "Backend Alive.",
@@ -137,11 +160,15 @@ func Start(cfg config.MetricsConfig) {
 
 	if !cfg.Enabled {
 		log.Info("Metrics disabled")
+		metricsDisabled = true
 		return
 	}
 
 	log.Info("Starting up Metrics server ", cfg.Bind)
 	defineMetrics()
+
+	prometheus.MustRegister(buildInfo)
+	buildInfo.WithLabelValues(info.Version, info.Revision, info.Branch, runtime.Version()).Set(1)
 
 	prometheus.MustRegister(serverCount)
 	prometheus.MustRegister(serverActiveConnections)
@@ -165,8 +192,40 @@ func Start(cfg config.MetricsConfig) {
 	}()
 }
 
+func RemoveServer(server string, backends map[core.Target]*core.Backend) {
+	if metricsDisabled {
+		return
+	}
+
+	serverCount.DeleteLabelValues(server)
+	serverActiveConnections.DeleteLabelValues(server)
+	serverRxTotal.DeleteLabelValues(server)
+	serverTxTotal.DeleteLabelValues(server)
+	serverRxSecond.DeleteLabelValues(server)
+	serverTxSecond.DeleteLabelValues(server)
+
+	for _, backend := range backends {
+		RemoveBackend(server, backend)
+	}
+}
+
+func RemoveBackend(server string, backend *core.Backend) {
+	if metricsDisabled {
+		return
+	}
+
+	backendActiveConnections.DeleteLabelValues(server, backend.Host, backend.Port)
+	backendRefusedConnections.DeleteLabelValues(server, backend.Host, backend.Port)
+	backendTotalConnections.DeleteLabelValues(server, backend.Host, backend.Port)
+	backendRxBytes.DeleteLabelValues(server, backend.Host, backend.Port)
+	backendTxBytes.DeleteLabelValues(server, backend.Host, backend.Port)
+	backendRxSecond.DeleteLabelValues(server, backend.Host, backend.Port)
+	backendTxSecond.DeleteLabelValues(server, backend.Host, backend.Port)
+	backendLive.DeleteLabelValues(server, backend.Host, backend.Port)
+}
+
 func ReportHandleBackendLiveChange(server string, target core.Target, live bool) {
-	if backendLive == nil {
+	if metricsDisabled {
 		return
 	}
 
@@ -179,7 +238,7 @@ func ReportHandleBackendLiveChange(server string, target core.Target, live bool)
 }
 
 func ReportHandleConnectionsChange(server string, connections uint) {
-	if serverActiveConnections == nil {
+	if metricsDisabled {
 		return
 	}
 
@@ -187,7 +246,7 @@ func ReportHandleConnectionsChange(server string, connections uint) {
 }
 
 func ReportHandleStatsChange(server string, bs counters.BandwidthStats) {
-	if serverRxTotal == nil || serverTxTotal == nil || serverRxSecond == nil || serverTxSecond == nil {
+	if metricsDisabled {
 		return
 	}
 
@@ -198,7 +257,7 @@ func ReportHandleStatsChange(server string, bs counters.BandwidthStats) {
 }
 
 func ReportHandleBackendStatsChange(server string, target core.Target, backends map[core.Target]*core.Backend) {
-	if serverCount == nil || backendRxBytes == nil || backendTxBytes == nil || backendRxSecond == nil || backendTxSecond == nil {
+	if metricsDisabled {
 		return
 	}
 
@@ -213,7 +272,7 @@ func ReportHandleBackendStatsChange(server string, target core.Target, backends 
 }
 
 func ReportHandleOp(server string, target core.Target, backends map[core.Target]*core.Backend) {
-	if backendActiveConnections == nil || backendRefusedConnections == nil || backendTotalConnections == nil {
+	if metricsDisabled {
 		return
 	}
 

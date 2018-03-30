@@ -22,9 +22,13 @@ import (
 )
 
 /**
- * Version should be set while build using ldflags (see Makefile)
+ * version,revision,branch should be set while build using ldflags (see Makefile)
  */
-var version string
+var (
+	version  string
+	revision string
+	branch   string
+)
 
 /**
  * Initialize package
@@ -41,6 +45,8 @@ func init() {
 
 	// Save info
 	info.Version = version
+	info.Revision = revision
+	info.Branch = branch
 	info.StartTime = time.Now()
 
 }

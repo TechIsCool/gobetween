@@ -12,7 +12,13 @@ export GOBIN := ${PWD}/vendor/bin
 
 NAME := gobetween
 VERSION := $(shell cat VERSION)
-LDFLAGS := -X main.version=${VERSION}
+REVISION := $(shell git rev-parse HEAD 2>/dev/null)
+BRANCH := $(shell git symbolic-ref --short HEAD 2>/dev/null)
+
+LDFLAGS := \
+  -X main.version=${VERSION} \
+  -X main.revision=${REVISION} \
+  -X main.branch=${BRANCH}
 
 default: build
 
@@ -93,8 +99,8 @@ dist:
 
 	@#             os    arch  cgo ext
 	@for arch in "linux   386  1      "  "linux   amd64 1      "  \
-				 "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-				 "darwin  386  0      "  "darwin  amd64 0      "; \
+		     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+		     "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\
