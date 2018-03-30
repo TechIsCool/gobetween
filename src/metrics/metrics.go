@@ -20,6 +20,7 @@ const (
 
 var (
 	metricsDisabled bool = false
+	log                  = logging.For("metrics")
 
 	buildInfo *prometheus.GaugeVec
 	version   string
@@ -155,8 +156,6 @@ func defineMetrics() {
 }
 
 func Start(cfg config.MetricsConfig) {
-
-	var log = logging.For("metrics")
 
 	if !cfg.Enabled {
 		log.Info("Metrics disabled")
