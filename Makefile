@@ -35,7 +35,7 @@ build:
 
 build-static:
 	@echo Building...
-	CGO_ENABLED=1 go build -v -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
+	CGO_ENABLED=0 go build -v -a -tags netgo -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
 	@echo Done.
 
 run: build
@@ -94,21 +94,20 @@ deps: clean-deps
 clean-dist:
 	rm -rf ./dist/${VERSION}
 
-
 dist:
 	@# For linux 386 when building on linux amd64 you'll need 'libc6-dev-i386' package
 	@echo Building dist
 
-	@#             os    arch  cgo ext
-	@for arch in "linux   386  1      "  "linux   amd64 1      "  \
-		     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-		     "darwin  386  0      "  "darwin  amd64 0      "; \
+	@#           os      arch cgo ext
+	@for arch in "linux   386  0      "  "linux   amd64 1      "  \
+		           "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+		           "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\
 	  distpath="./dist/${VERSION}/$$1_$$2" ;\
 	  mkdir -p $$distpath ; \
-	  CGO_ENABLED=$$3 GOOS=$$1 GOARCH=$$2 go build -v -o $$distpath/$(NAME)$$4 -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go ;\
+	  CGO_ENABLED=$$3 GOOS=$$1 GOARCH=$$2 go build -v -a -tags netgo -o $$distpath/$(NAME)$$4 -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go ;\
 	  cp "README.md" "LICENSE" "CHANGELOG.md" "AUTHORS" $$distpath ;\
 	  mkdir -p $$distpath/config && cp "./config/gobetween.toml" $$distpath/config ;\
 	  if [ "$$1" = "linux" ]; then \
