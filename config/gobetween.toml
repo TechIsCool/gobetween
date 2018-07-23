@@ -20,6 +20,7 @@ output = "stdout" # "stdout" | "stderr" | "/path/to/gobetween.log"
 [api]
 enabled = true  # true | false
 bind = ":8888"  # "host:port"
+pprof = false   #  runtime profiling data https://golang.org/pkg/runtime/pprof/
 cors = false    # cross-origin resource sharing
 
 #  [api.basic_auth]   # (optional) Enable HTTP Basic Auth
@@ -30,6 +31,12 @@ cors = false    # cross-origin resource sharing
 #  cert_path = "/path/to/cert.pem"  # Path to certificate
 #  key_path = "/path/to/key.pem"    # Path to key
 
+#
+# Metrics server configuration
+#
+[metrics]
+enabled = true  # true | false
+bind = ":9284"  # "host:port"
 
 #
 # Default values for server configuration, may be overriden in [servers] sections.

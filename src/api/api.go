@@ -8,8 +8,9 @@ package api
 import (
 	"../config"
 	"../logging"
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
+	"github.com/gin-gonic/gin"
 )
 
 /* gin app */
@@ -47,6 +48,11 @@ func Start(cfg config.ApiConfig) {
 
 		app.Use(cors.New(corsConfig))
 		log.Info("API CORS enabled")
+	}
+
+	if cfg.Pprof {
+		log.Info("Registering /debug/pprof")
+		pprof.Register(app)
 	}
 
 	r := app.Group("/")

@@ -12,7 +12,13 @@ export GOBIN := ${PWD}/vendor/bin
 
 NAME := gobetween
 VERSION := $(shell cat VERSION)
-LDFLAGS := -X main.version=${VERSION}
+REVISION := $(shell git rev-parse HEAD 2>/dev/null)
+BRANCH := $(shell git symbolic-ref --short HEAD 2>/dev/null)
+
+LDFLAGS := \
+  -X main.version=${VERSION} \
+  -X main.revision=${REVISION} \
+  -X main.branch=${BRANCH}
 
 default: build
 
@@ -59,17 +65,25 @@ clean-deps:
 deps: clean-deps
 	GOPATH=${PWD}/vendor go get -u -v \
 	github.com/BurntSushi/toml \
+        github.com/google/pprof \
 	github.com/miekg/dns \
 	github.com/fsouza/go-dockerclient \
-	github.com/Sirupsen/logrus \
+	github.com/sirupsen/logrus \
 	github.com/elgs/gojq \
 	github.com/gin-gonic/gin \
 	github.com/hashicorp/consul/api \
 	github.com/spf13/cobra \
+	github.com/beorn7/perks/quantile \
+	github.com/prometheus/client_golang/prometheus \
+	github.com/prometheus/client_model/go \
+	github.com/prometheus/common/model \
+	github.com/matttproud/golang_protobuf_extensions/pbutil \
+	github.com/prometheus/procfs \
 	github.com/Microsoft/go-winio \
 	golang.org/x/sys/windows \
 	github.com/inconshreveable/mousetrap \
 	github.com/gin-contrib/cors \
+	github.com/gin-contrib/pprof \
 	github.com/lxc/lxd/client \
 	github.com/lxc/lxd/lxc/config \
 	github.com/lxc/lxd/shared \
@@ -84,10 +98,10 @@ dist:
 	@# For linux 386 when building on linux amd64 you'll need 'libc6-dev-i386' package
 	@echo Building dist
 
-	@#             os    arch  cgo ext
+	@#           os      arch cgo ext
 	@for arch in "linux   386  0      "  "linux   amd64 1      "  \
-		     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-		     "darwin  386  0      "  "darwin  amd64 0      "; \
+		           "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+		           "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\

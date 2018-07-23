@@ -7,12 +7,14 @@
 package scheduler
 
 import (
+	"fmt"
 	"time"
 
 	"../../core"
 	"../../discovery"
 	"../../healthcheck"
 	"../../logging"
+	"../../metrics"
 	"../../stats"
 	"../../stats/counters"
 )
@@ -95,7 +97,7 @@ func (this *Scheduler) Start() {
 
 	log := logging.For("scheduler")
 
-	log.Info("Starting scheduler")
+	log.Info("Starting scheduler ", this.StatsHandler.Name)
 
 	this.ops = make(chan Op)
 	this.elect = make(chan ElectRequest)
@@ -152,10 +154,11 @@ func (this *Scheduler) Start() {
 
 			// handle scheduler stop
 			case <-this.stop:
-				log.Info("Stopping scheduler")
+				log.Info("Stopping scheduler ", this.StatsHandler.Name)
 				backendsPushTicker.Stop()
 				this.Discovery.Stop()
 				this.Healthcheck.Stop()
+				metrics.RemoveServer(fmt.Sprintf("%s", this.StatsHandler.Name), this.backends)
 				return
 			}
 		}
@@ -203,6 +206,8 @@ func (this *Scheduler) HandleBackendStatsChange(target core.Target, bs *counters
 	backend.Stats.TxBytes = bs.TxTotal
 	backend.Stats.RxSecond = bs.RxSecond
 	backend.Stats.TxSecond = bs.TxSecond
+
+	metrics.ReportHandleBackendStatsChange(fmt.Sprintf("%s", this.StatsHandler.Name), target, this.backends)
 }
 
 /**
@@ -217,12 +222,15 @@ func (this *Scheduler) HandleBackendLiveChange(target core.Target, live bool) {
 	}
 
 	backend.Stats.Live = live
+
+	metrics.ReportHandleBackendLiveChange(fmt.Sprintf("%s", this.StatsHandler.Name), target, live)
 }
 
 /**
  * Update backends map
  */
 func (this *Scheduler) HandleBackendsUpdate(backends []core.Backend) {
+	log := logging.For("scheduler")
 
 	updated := map[core.Target]*core.Backend{}
 	updatedList := make([]*core.Backend, len(backends))
@@ -237,8 +245,22 @@ func (this *Scheduler) HandleBackendsUpdate(backends []core.Backend) {
 			updated[oldB.Target] = updatedB
 			updatedList[i] = updatedB
 		} else {
+			log.Info(fmt.Sprintf("Added Backend %s/%s:%s", this.StatsHandler.Name, b.Host, b.Port))
 			updated[b.Target] = &b
 			updatedList[i] = &b
+		}
+	}
+
+	mapOld := map[*core.Backend]bool{}
+
+	for _, x := range updatedList {
+		mapOld[x] = true
+	}
+
+	for _, x := range this.backendsList {
+		if _, ok := mapOld[x]; !ok {
+			log.Info(fmt.Sprintf("Removed Backend %s/%s:%s", this.StatsHandler.Name, x.Host, x.Port))
+			metrics.RemoveBackend(this.StatsHandler.Name, x)
 		}
 	}
 
@@ -303,11 +325,15 @@ func (this *Scheduler) HandleOp(op Op) {
 		backend.Stats.ActiveConnections++
 		backend.Stats.TotalConnections++
 	case DecrementConnection:
-		backend.Stats.ActiveConnections--
+		// we should not underflow
+		if backend.Stats.ActiveConnections-1 < backend.Stats.ActiveConnections {
+			backend.Stats.ActiveConnections--
+		}
 	default:
 		log.Warn("Don't know how to handle op ", op.op)
 	}
 
+	metrics.ReportHandleOp(fmt.Sprintf("%s", this.StatsHandler.Name), op.target, this.backends)
 }
 
 /**
