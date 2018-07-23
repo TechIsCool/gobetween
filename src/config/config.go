@@ -12,6 +12,7 @@ package config
 type Config struct {
 	Logging  LoggingConfig     `toml:"logging" json:"logging"`
 	Api      ApiConfig         `toml:"api" json:"api"`
+	Metrics  MetricsConfig     `toml:"metrics" json:"metrics"`
 	Defaults ConnectionOptions `toml:"defaults" json:"defaults"`
 	Servers  map[string]Server `toml:"servers" json:"servers"`
 }
@@ -49,6 +50,14 @@ type ApiBasicAuthConfig struct {
 type ApiTlsConfig struct {
 	CertPath string `toml:"cert_path" json:"cert_path"`
 	KeyPath  string `toml:"key_path" json:"key_path"`
+}
+
+/**
+ * Metrics config section
+ */
+type MetricsConfig struct {
+	Enabled bool   `toml:"enabled" json:"enabled"`
+	Bind    string `toml:"bind" json:"bind"`
 }
 
 /**
@@ -133,11 +142,11 @@ type tlsCommon struct {
  * for protocol = "tls"
  */
 type Tls struct {
-	AcmeEnabled bool     `toml:"acme_enabled" json:"acme_enabled"`
-	AcmeHosts   []string `toml:"acme_hosts" json:"acme_hosts"`
-	AcmeCacheDir string  `toml:"acme_cache_dir" json:"acme_cache_dir"`
-	CertPath    string   `toml:"cert_path" json:"cert_path"`
-	KeyPath     string   `toml:"key_path" json:"key_path"`
+	AcmeEnabled  bool     `toml:"acme_enabled" json:"acme_enabled"`
+	AcmeHosts    []string `toml:"acme_hosts" json:"acme_hosts"`
+	AcmeCacheDir string   `toml:"acme_cache_dir" json:"acme_cache_dir"`
+	CertPath     string   `toml:"cert_path" json:"cert_path"`
+	KeyPath      string   `toml:"key_path" json:"key_path"`
 	tlsCommon
 }
 
