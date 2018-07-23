@@ -33,6 +33,7 @@ type ApiConfig struct {
 	BasicAuth *ApiBasicAuthConfig `toml:"basic_auth" json:"basic_auth"`
 	Tls       *ApiTlsConfig       `toml:"tls" json:"tls"`
 	Cors      bool                `toml:"cors" json:"cors"`
+	Pprof     bool                `toml:"pprof" json:"pprof"`
 }
 
 /**
@@ -133,11 +134,11 @@ type tlsCommon struct {
  * for protocol = "tls"
  */
 type Tls struct {
-	AcmeEnabled bool     `toml:"acme_enabled" json:"acme_enabled"`
-	AcmeHosts   []string `toml:"acme_hosts" json:"acme_hosts"`
-	AcmeCacheDir string  `toml:"acme_cache_dir" json:"acme_cache_dir"`
-	CertPath    string   `toml:"cert_path" json:"cert_path"`
-	KeyPath     string   `toml:"key_path" json:"key_path"`
+	AcmeEnabled  bool     `toml:"acme_enabled" json:"acme_enabled"`
+	AcmeHosts    []string `toml:"acme_hosts" json:"acme_hosts"`
+	AcmeCacheDir string   `toml:"acme_cache_dir" json:"acme_cache_dir"`
+	CertPath     string   `toml:"cert_path" json:"cert_path"`
+	KeyPath      string   `toml:"key_path" json:"key_path"`
 	tlsCommon
 }
 

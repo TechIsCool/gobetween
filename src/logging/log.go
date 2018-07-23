@@ -9,9 +9,10 @@ package logging
 import (
 	"bytes"
 	"fmt"
-	"github.com/Sirupsen/logrus"
 	"os"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 /**
