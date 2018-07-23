@@ -34,6 +34,7 @@ type ApiConfig struct {
 	BasicAuth *ApiBasicAuthConfig `toml:"basic_auth" json:"basic_auth"`
 	Tls       *ApiTlsConfig       `toml:"tls" json:"tls"`
 	Cors      bool                `toml:"cors" json:"cors"`
+	Pprof     bool                `toml:"pprof" json:"pprof"`
 }
 
 /**

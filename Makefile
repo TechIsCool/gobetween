@@ -65,9 +65,10 @@ clean-deps:
 deps: clean-deps
 	GOPATH=${PWD}/vendor go get -u -v \
 	github.com/BurntSushi/toml \
+        github.com/google/pprof \
 	github.com/miekg/dns \
 	github.com/fsouza/go-dockerclient \
-	github.com/Sirupsen/logrus \
+	github.com/sirupsen/logrus \
 	github.com/elgs/gojq \
 	github.com/gin-gonic/gin \
 	github.com/hashicorp/consul/api \
@@ -82,6 +83,7 @@ deps: clean-deps
 	golang.org/x/sys/windows \
 	github.com/inconshreveable/mousetrap \
 	github.com/gin-contrib/cors \
+	github.com/gin-contrib/pprof \
 	github.com/lxc/lxd/client \
 	github.com/lxc/lxd/lxc/config \
 	github.com/lxc/lxd/shared \
