@@ -35,7 +35,7 @@ build:
 
 build-static:
 	@echo Building...
-	CGO_ENABLED=0 go build -v -a -tags netgo -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
+	CGO_ENABLED=1 go build -v -a -tags netgo -o ./bin/$(NAME) -ldflags '-s -w --extldflags "-static" ${LDFLAGS}' ./src/*.go
 	@echo Done.
 
 run: build
@@ -99,9 +99,9 @@ dist:
 	@echo Building dist
 
 	@#           os      arch cgo ext
-	@for arch in "linux   386  0      "  "linux   amd64 1      "  \
-		           "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-		           "darwin  386  0      "  "darwin  amd64 0      "; \
+	@for arch in "linux   386  1      "  "linux   amd64 1      "  \
+                     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+                     "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\
