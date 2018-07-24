@@ -325,6 +325,8 @@ func (this *Server) handle(ctx *core.TcpContext) {
 		return
 	}
 
+	log.Debug("Found Backend ", clientConn.RemoteAddr(), " -> ", this.listener.Addr())
+
 	/* Connect to backend */
 	var backendConn net.Conn
 
@@ -337,6 +339,8 @@ func (this *Server) handle(ctx *core.TcpContext) {
 		backendConn, err = net.DialTimeout("tcp", backend.Address(), utils.ParseDurationOrDefault(*this.cfg.BackendConnectionTimeout, 0))
 	}
 
+	log.Debug("Connected to Backend ", clientConn.RemoteAddr(), " -> ", this.listener.Addr(), " -> ", backend.Address())
+
 	if err != nil {
 		this.scheduler.IncrementRefused(*backend)
 		log.Error(err)
@@ -344,6 +348,8 @@ func (this *Server) handle(ctx *core.TcpContext) {
 	}
 	this.scheduler.IncrementConnection(*backend)
 	defer this.scheduler.DecrementConnection(*backend)
+
+	log.Debug("IncrementedConnecion ", clientConn.RemoteAddr(), " -> ", this.listener.Addr())
 
 	/* Send proxy protocol header if configured */
 	if this.cfg.ProxyProtocol != nil {
