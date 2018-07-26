@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	metricsDisabled bool = false
+	metricsDisabled bool = true
 	log                  = logging.For("metrics")
 
 	buildInfo *prometheus.GaugeVec
@@ -159,7 +159,6 @@ func Start(cfg config.MetricsConfig) {
 
 	if !cfg.Enabled {
 		log.Info("Metrics disabled")
-		metricsDisabled = true
 		return
 	}
 
@@ -189,6 +188,9 @@ func Start(cfg config.MetricsConfig) {
 	go func() {
 		fmt.Errorf("%s", http.ListenAndServe(cfg.Bind, nil))
 	}()
+
+	// Ready to Handle Metrics
+	metricsDisabled = false
 }
 
 func RemoveServer(server string, backends map[core.Target]*core.Backend) {
