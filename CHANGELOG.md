@@ -1,9 +1,43 @@
 # Changelog
 
-## [0.6.0] - Unreleased
+## [0.6.2] - Unreleased
 
 ### New Features
  - Prometheus Metrics Endpoint
+
+## [0.6.1] - 2018-10-23
+This release brings only bugfixes
+
+### Fixed
+- No binaries were generated for some of the platforms during make dist
+- Regression of roundrobin balancer (it was acting on randomized list of backends)
+- Docker image was not working due to missing dynamic library dependencies
+- Gobetween became stuck in very rare cases during reading hostname info (sni) from new tls connections.
+
+
+## [0.6.0] - 2018-08-21
+This release brings some improvements and bugfixes.
+
+### New Features
+- ACME (Letsencrypt) http challenge support (sni challenge is disabled due to security considerations)
+
+### Added
+- iphash1 algorithm (consistent on backend removal)
+- More strict check of UDP server configuration
+- /ping public endpoint for healthcheck (PR #127 by Mike Schroeder)
+- Support for using the Host Address (PR #123 by David Beck)
+- Mentioned gowebhello as an alternative webserver (PR #137 by Shantanu Gadgil)
+
+### Fixed
+- Fixed iphash algorithm. It was not working properly at all
+- Fixed UDP 'session' tracking problems
+- Fixed active connections underflow on backend removed and added back, but connections remain established
+
+### Changed
+- Removed not necessary dependency on libacl1-dev
+- Replaced missing dependencies
+- Removed lxdhelpers (PR #113 by Joe Topjian)
+
 
 ## [0.5.0] - 2017-10-13
 

@@ -14,6 +14,7 @@ type Config struct {
 	Api      ApiConfig         `toml:"api" json:"api"`
 	Metrics  MetricsConfig     `toml:"metrics" json:"metrics"`
 	Defaults ConnectionOptions `toml:"defaults" json:"defaults"`
+	Acme     *AcmeConfig       `toml:"acme" json:"acme"`
 	Servers  map[string]Server `toml:"servers" json:"servers"`
 }
 
@@ -69,6 +70,15 @@ type ConnectionOptions struct {
 	ClientIdleTimeout        *string `toml:"client_idle_timeout" json:"client_idle_timeout"`
 	BackendIdleTimeout       *string `toml:"backend_idle_timeout" json:"backend_idle_timeout"`
 	BackendConnectionTimeout *string `toml:"backend_connection_timeout" json:"backend_connection_timeout"`
+}
+
+/**
+ * Acme config
+ */
+type AcmeConfig struct {
+	Challenge string `toml:"challenge" json:"challenge"`
+	HttpBind  string `toml:"http_bind" json:"http_bind"`
+	CacheDir  string `toml:"cache_dir" json:"cache_dir"`
 }
 
 /**
@@ -143,11 +153,9 @@ type tlsCommon struct {
  * for protocol = "tls"
  */
 type Tls struct {
-	AcmeEnabled  bool     `toml:"acme_enabled" json:"acme_enabled"`
-	AcmeHosts    []string `toml:"acme_hosts" json:"acme_hosts"`
-	AcmeCacheDir string   `toml:"acme_cache_dir" json:"acme_cache_dir"`
-	CertPath     string   `toml:"cert_path" json:"cert_path"`
-	KeyPath      string   `toml:"key_path" json:"key_path"`
+	AcmeHosts []string `toml:"acme_hosts" json:"acme_hosts"`
+	CertPath  string   `toml:"cert_path" json:"cert_path"`
+	KeyPath   string   `toml:"key_path" json:"key_path"`
 	tlsCommon
 }
 

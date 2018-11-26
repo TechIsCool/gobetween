@@ -42,7 +42,7 @@ run: build
 	./bin/$(NAME) -c ./config/${NAME}.toml
 
 test:
-	@go test test/*.go
+	@go test -v test/*.go
 
 install: build
 	install -d ${DESTDIR}/usr/local/bin/
@@ -63,33 +63,35 @@ clean-deps:
 	rm -rf ./vendor/bin
 
 deps: clean-deps
-	GOPATH=${PWD}/vendor go get -u -v \
-	github.com/BurntSushi/toml \
-        github.com/google/pprof \
-	github.com/miekg/dns \
-	github.com/fsouza/go-dockerclient \
-	github.com/sirupsen/logrus \
-	github.com/elgs/gojq \
-	github.com/gin-gonic/gin \
-	github.com/hashicorp/consul/api \
-	github.com/spf13/cobra \
-	github.com/beorn7/perks/quantile \
-	github.com/prometheus/client_golang/prometheus \
-	github.com/prometheus/client_model/go \
-	github.com/prometheus/common/model \
-	github.com/matttproud/golang_protobuf_extensions/pbutil \
-	github.com/prometheus/procfs \
-	github.com/Microsoft/go-winio \
-	golang.org/x/sys/windows \
-	github.com/inconshreveable/mousetrap \
-	github.com/gin-contrib/cors \
-	github.com/gin-contrib/pprof \
-	github.com/lxc/lxd/client \
-	github.com/lxc/lxd/lxc/config \
-	github.com/lxc/lxd/shared \
-	github.com/lxc/lxd/shared/api \
-	github.com/pires/go-proxyproto \
-	golang.org/x/crypto/acme/autocert
+	go get -v github.com/burntsushi/toml
+	go get -v github.com/miekg/dns
+	# go get -v  github.com/google/pprof
+	go get -v github.com/fsouza/go-dockerclient
+	go get -v github.com/sirupsen/logrus
+	go get -v github.com/elgs/gojq
+	go get -v github.com/gin-gonic/gin
+	go get -v github.com/hashicorp/consul/api
+	go get -v github.com/spf13/cobra
+	# go get -v github.com/beorn7/perks/quantile
+	# go get -v github.com/prometheus/client_golang/prometheus
+	# go get -v github.com/prometheus/client_model/go
+	# go get -v github.com/prometheus/common/model
+	# go get -v github.com/matttproud/golang_protobuf_extensions/pbutil
+	# go get -v github.com/prometheus/procfs
+	go get -v github.com/Microsoft/go-winio
+	go get -v github.com/Azure/go-ansiterm
+	go get -v golang.org/x/sys/windows
+	go get -v github.com/inconshreveable/mousetrap
+	go get -v github.com/gin-contrib/cors
+	# go get -v github.com/gin-contrib/pprof
+	go get -v github.com/lxc/lxd/client
+	go get -v github.com/lxc/lxd/lxc/config
+	go get -v github.com/lxc/lxd/shared
+	go get -v github.com/lxc/lxd/shared/api
+	go get -v github.com/pires/go-proxyproto
+	go get -v golang.org/x/crypto/acme/autocert
+	GOOS=windows GOARCH=386 CGO=0   go get -v github.com/konsorten/go-windows-terminal-sequences
+	GOOS=windows GOARCH=amd64 CGO=0 go get -v github.com/konsorten/go-windows-terminal-sequences
 
 clean-dist:
 	rm -rf ./dist/${VERSION}
@@ -99,7 +101,7 @@ dist:
 	@echo Building dist
 
 	@#           os      arch cgo ext
-	@for arch in "linux   386  1      "  "linux   amd64 1      "  \
+	@for arch in "linux   386  0      "  "linux   amd64 1      "  \
                      "windows 386  0 .exe "  "windows amd64 0 .exe "  \
                      "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
@@ -117,10 +119,10 @@ dist:
 	  fi \
 	done
 
-build-container-latest: build
+build-container-latest: build-static
 	@echo Building docker container LATEST
 	docker build -t yyyar/gobetween .
 
-build-container-tagged: build
+build-container-tagged: build-static
 	@echo Building docker container ${VERSION}
 	docker build -t yyyar/gobetween:${VERSION} .

@@ -1,0 +1,147 @@
+#
+# gobetween.toml - sample config file
+#
+# Website: http://gobetween.io
+# Documentation: https://github.com/yyyar/gobetween/wiki/Configuration
+#
+
+
+#
+# Logging configuration
+#
+[logging]
+level = "debug"   # "debug" | "info" | "warn" | "error"
+output = "stdout" # "stdout" | "stderr" | "/path/to/gobetween.log"
+
+
+#
+# REST API server configuration
+#
+[api]
+enabled = true  # true | false
+bind = ":8888"  # "host:port"
+pprof = true
+cors = false    # cross-origin resource sharing
+
+#  [api.basic_auth]   # (optional) Enable HTTP Basic Auth
+#  login = "admin"    # HTTP Auth Login
+#  password = "1111"  # HTTP Auth Password
+
+#  [api.tls]                        # (optional) Enable HTTPS
+#  cert_path = "/path/to/cert.pem"  # Path to certificate
+#  key_path = "/path/to/key.pem"    # Path to key
+
+#
+# Metrics server configuration
+#
+[metrics]
+enabled = true  # true | false
+bind = ":9284"  # "host:port"
+
+#
+# Default values for server configuration, may be overriden in [servers] sections.
+# All "duration" fields (for examole, postfixed with '_timeout') have the following format:
+# <int><duration> where duration can be one of 'ms', 's', 'm', 'h'.
+# Examples: "5s", "1m", "500ms", etc. "0" value means no limit
+#
+[defaults]
+max_connections = 0              # Maximum simultaneous connections to the server
+client_idle_timeout = "0"        # Client inactivity duration before forced connection drop
+backend_idle_timeout = "0"       # Backend inactivity duration before forced connection drop
+backend_connection_timeout = "0" # Backend connection timeout (ignored in udp)
+
+
+#
+# Servers contains as many [server.<name>] sections as needed.
+#
+[servers]
+[servers.default]
+protocol = "tcp"
+bind = "0.0.0.0:3306"
+
+
+  [servers.default.discovery]      # (required)
+  failpolicy = "keeplast"          # (optional) "keeplast" | "setempty" - what to do with backends if discovery fails
+  interval = "10s"                  # (required) backends cache invalidation interval; 0 means never.
+  timeout = "5s"                   # (optional) max time to wait for discover until falling to failpolicy
+
+#  # -- static -- #
+#  kind = "static"
+#  static_list = [                       #  (required)  [
+#      "localhost:8000 weight=5",        #    "<host>:<port> weight=<int>" weight=1 by default
+#      "localhost:8001 sni=www.foo.com"  #  ]
+#  ]
+#
+#  # -- srv -- #
+#  kind = "srv"
+#  srv_lookup_server = "some.server:53"   # (required) "<host:port>"
+#  srv_lookup_pattern = "some.service."   # (required) lookup service
+#  srv_dns_protocol = "udp"               # (optional) protocol to use for dns lookup
+#
+#  # -- docker -- #
+#  kind = "docker"
+#  docker_endpoint = "http://localhost:2375" # (required) Endpoint to docker API
+#  docker_container_private_port = 80        # (required) Private port of container to use
+#  docker_container_label = "proxied=true"   # (optional) Label to filter containers
+#  docker_container_host_env_var = ""        # (optional) Take container host from container env variable
+#
+#  docker_tls_enabled = false                 # (optional) enable client tls auth
+#  docker_tls_cert_path = '/path/to/cert.pem' # (optional) key and cert should be specified together, or both left not specified
+#  docker_tls_key_path = '/path/to/key.pem'   # (optional)
+#  docker_tls_cacert_path = '/path/to/cacert.pem' # (optional) if not specified, docker endpoint tls verification will be skipped (insecure!)
+#
+#  # -- json -- #
+#  kind = "json"
+#  json_endpoint = "http://some.url.com"   # (required) JSON discovery Url
+#  json_host_pattern = "host"              # (optional) path to host value in JSON object, by default "host"
+#  json_port_pattern = "port"              # (optional) path to port value in JSON object, by default "port"
+#  json_weight_pattern = "weight"          # (optional) path to weight value in JSON object, by default "weight"
+#  json_priority_pattern = "priority"      # (optional) path to priority value in JSON object, by default "priority"
+#  json_sni_pattern = "sni"                # (optional) path to SNI value in JSON object, by default "sni"
+#
+#  # -- exec -- #
+#  kind = "exec"
+#  exec_command = ["/path/to/script", "arg1", "arg2"] # (required) command to exec and variable-length arguments
+#
+#  # -- plaintext -- #
+#  kind = "plaintext"
+#  plaintext_endpoint = "http://some.url.com"   # (required) Url to plain text discovery
+#  plaintext_regex_pattern = ""                 # (optional) Regex with named capturing groups
+#
+ # -- consul -- #
+ kind = "consul"
+ consul_host = "http://consul-001.or.utility.cardfree.net:8500"       # (required) Consul host:port
+ consul_service_name = "mysql"    # (required) Service name
+ consul_service_tag = "env:dev"              # (optional) Service tag
+#  consul_service_passing_only = true   # (optional) Get only services with passing healthchecks
+#  consul_service_datacenter = ""       # (optional) Datacenter to use
+#
+#  consul_auth_username = ""   # (optional) HTTP Basic Auth username
+#  consul_auth_password = ""   # (optional) HTTP Basic Auth password
+#
+#  consul_tls_enabled = true                      # (optional) enable client tls auth
+#  consul_tls_cert_path = "/path/to/cert.pem"
+#  consul_tls_key_path = "/path/to/key.pem"
+#  consul_tls_cacert_path = "/path/to/cacert.pem"
+#
+#  # -- lxd -- #
+#  kind = "lxd"
+#  lxd_server_address = "unix:///var/lib/lxd/unix.socket"   # (required) Address of the LXD server. Either unix://<path> or https://<addr>:port
+#  lxd_server_remote_name = ""                              # (optional) Name of the LXD server
+#  lxd_server_remote_password = ""                          # (optional) Password to the remote LXD server. Only used when address scheme is https
+#
+#  lxd_config_directory = "~/.config/lxd"                   # (optional) Directory where LXD server info and certificates are stored
+#  lxd_generate_client_certs = false                        # (optional) Generate client SSL certificates for gobetween if not previously generated. Only used when scheme is https
+#  lxd_accept_server_cert = false                           # (optional) Accept the LXD server certificate. Only used when scheme is https
+#
+#  lxd_container_label_key = "user.label"                   # (optional) Filter containers that have specified setting
+#  lxd_container_label_value = "foo"                        # (optional) Filter continers that have specified value of 'lxd_container_label_key' setting
+#
+#  lxd_container_port = 0                                   # (required) Port of container to use
+#  lxd_container_port_key = "user.gobetween.port"           # (optional) Container setting key that specifies the port.
+#
+#  lxd_container_interface = "eth0"                         # (optional) Interface of container to use
+#  lxd_container_interface_key = "user.gobetween.interface" # (optional) Container setting that specifies the interface.
+#
+#  lxd_container_sni_key = ""                               # (optional) Container setting that specifies the sni name of the container.
+#  lxd_container_address_type = "IPv4"                      # (optional) Container setting that specifies whether to use an IPv4 or IPv6 address. Valid options are IPv4 or IPv6.

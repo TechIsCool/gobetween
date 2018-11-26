@@ -5,6 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/yyyar/gobetween)](https://goreportcard.com/report/github.com/yyyar/gobetween)
 [![Docs](https://img.shields.io/badge/docs-current-brightgreen.svg)](https://github.com/yyyar/gobetween/wiki)
 [![Docker](https://img.shields.io/docker/pulls/yyyar/gobetween.svg)](https://hub.docker.com/r/yyyar/gobetween/)
+[![Telegram](https://img.shields.io/badge/telegram-chat-blue.svg)](https://t.me/joinchat/GdlUlg_gRfchk1BORU82PA)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 
@@ -17,7 +18,7 @@
 * [Fast L4 Load Balancing](https://github.com/yyyar/gobetween/wiki)
   * **TCP** - with optional [The PROXY Protocol](https://github.com/yyyar/gobetween/wiki/Proxy-Protocol) support
   * **TLS** - [TLS Termination](https://github.com/yyyar/gobetween/wiki/Protocols#tls) + [ACME](https://github.com/yyyar/gobetween/wiki/Protocols#tls) & [TLS Proxy](https://github.com/yyyar/gobetween/wiki/Tls-Proxying)
-  * **UDP**
+  * **UDP** - with optional virtual sessions
 
   
 * [Clear & Flexible Configuration](https://github.com/yyyar/gobetween/wiki/Configuration) with [TOML](config/gobetween.toml) or [JSON](config/gobetween.json)
@@ -39,7 +40,7 @@
   * **Plaintext** - query arbitrary http and parse backends from response text with customized regexp
   * **SRV** - query DNS server and get backends from SRV records
   * **Consul** - query Consul Services API for backends 
-  * **LXD** - query backands from LXD
+  * **LXD** - query backends from LXD
 
 * [Healthchecks](https://github.com/yyyar/gobetween/wiki/Healthchecks)
   * **Ping** - simple TCP ping healtcheck
@@ -49,6 +50,7 @@
   * **Weight** - select backend from pool based relative weights of backends
   * **Roundrobin** - simple elect backend from pool in circular order
   * **Iphash** - route client to the same backend based on client ip hash
+  * **Iphash1** - same as iphash but backend removal consistent (clients remain connecting to the same backend, even if some other backends down)
   * **Leastconn** - select backend with least active connections
   * **Leastbandwidth** -  backends with least bandwidth
 
@@ -69,7 +71,7 @@
 
 ## Hacking
 
-* Install Go 1.8+ https://golang.org/
+* Install Go 1.10+ https://golang.org/
 * `$ git clone git@github.com:yyyar/gobetween.git`
 * `$ make deps`
 * `$ make run`
@@ -79,6 +81,12 @@ Run several web servers for tests in different terminals:
 
 * `$ python -m SimpleHTTPServer 8000`
 * `$ python -m SimpleHTTPServer 8001`
+
+Instead of Python's internal HTTP module, you can also use a single binary (Go based) webserver like:
+https://github.com/udhos/gowebhello
+
+**gowebhello** has support for SSL sertificates as well (**HTTPS** mode), in case you want to do quick demos
+of the **TLS+SNI** capabilities of gobetween.
 
 Put `localhost:8000` and `localhost:8001` to `static_list` of static discovery in config file, then try it:
 
@@ -105,6 +113,9 @@ MIT. See LICENSE file for more details.
 
 ## All Contributors
 - See [AUTHORS](AUTHORS)
+
+## Community
+- Join gobetween Telegram group [here](https://t.me/joinchat/GdlUlg_gRfchk1BORU82PA).
 
 ## Logo
 Logo by [Max Demchenko](https://www.linkedin.com/in/max-demchenko-116170112)
