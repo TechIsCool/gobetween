@@ -72,12 +72,12 @@ deps: clean-deps
 	go get -v github.com/gin-gonic/gin
 	go get -v github.com/hashicorp/consul/api
 	go get -v github.com/spf13/cobra
-	# go get -v github.com/beorn7/perks/quantile
-	# go get -v github.com/prometheus/client_golang/prometheus
-	# go get -v github.com/prometheus/client_model/go
-	# go get -v github.com/prometheus/common/model
-	# go get -v github.com/matttproud/golang_protobuf_extensions/pbutil
-	# go get -v github.com/prometheus/procfs
+	go get -v github.com/beorn7/perks/quantile
+	go get -v github.com/prometheus/client_golang/prometheus
+	go get -v github.com/prometheus/client_model/go
+	go get -v github.com/prometheus/common/model
+	go get -v github.com/matttproud/golang_protobuf_extensions/pbutil
+	go get -v github.com/prometheus/procfs
 	go get -v github.com/Microsoft/go-winio
 	go get -v github.com/Azure/go-ansiterm
 	go get -v golang.org/x/sys/windows
@@ -102,8 +102,8 @@ dist:
 
 	@#           os      arch cgo ext
 	@for arch in "linux   386  0      "  "linux   amd64 1      "  \
-                     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
-                     "darwin  386  0      "  "darwin  amd64 0      "; \
+		     "windows 386  0 .exe "  "windows amd64 0 .exe "  \
+		     "darwin  386  0      "  "darwin  amd64 0      "; \
 	do \
 	  set -- $$arch ; \
 	  echo "******************* $$1_$$2 ********************" ;\
