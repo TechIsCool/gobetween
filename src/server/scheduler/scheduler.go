@@ -257,19 +257,8 @@ func (this *Scheduler) HandleBackendsUpdate(backends []core.Backend) {
 			continue
 		}
 		delete(this.backends, t)
-	}
-
-	mapOld := map[*core.Backend]bool{}
-
-	for _, x := range updatedList {
-		mapOld[x] = true
-	}
-
-	for _, x := range this.backendsList {
-		if _, ok := mapOld[x]; !ok {
-			log.Info(fmt.Sprintf("Removed Backend %s/%s:%s", this.StatsHandler.Name, x.Host, x.Port))
-			metrics.RemoveBackend(this.StatsHandler.Name, x)
-		}
+		log.Info(fmt.Sprintf("Removed Backend %s/%s:%s", this.StatsHandler.Name, b.Host, b.Port))
+		metrics.RemoveBackend(this.StatsHandler.Name, b)
 	}
 }
 
